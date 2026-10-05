@@ -1,4 +1,4 @@
-# Settle or Duke It Out?
+# Gavel or Gamble
 
 A static, no-build web app that weighs a settlement offer against going to trial using expected value, discounting and a risk adjustment. Decision support only, not legal advice.
 
