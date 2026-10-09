@@ -16,32 +16,61 @@
 <body>
 <main>
 <h1>Gavel or <span>Gamble</span></h1>
-<p class="sub">Weigh the offer on the table against the risk of trial. One bold move can change the whole case.</p>
-<div class="grid">
-<section class="card" aria-label="Your case">
-<h2>Your case</h2>
+<p class="sub">Take your case through four quick rounds, then see how the offer stacks up against trial.</p>
+<section class="show" aria-label="Settlement decision show">
+<div class="show-header">
+<div class="round-label" id="round-label" aria-live="polite">ROUND 1 OF 4</div>
+<ol class="progress" aria-label="Your case rounds">
+<li data-progress="0" aria-current="step"><span>1</span><span class="progress-label">Your side</span></li>
+<li data-progress="1"><span>2</span><span class="progress-label">Case value</span></li>
+<li data-progress="2"><span>3</span><span class="progress-label">Trial odds</span></li>
+<li data-progress="3"><span>4</span><span class="progress-label">Risk</span></li>
+</ol>
+</div>
+<section class="card step-panel" data-screen="0" aria-labelledby="step-one-title">
+<div class="step-kicker">First, set the scene</div>
+<h2 id="step-one-title">Which side of the table are you on?</h2>
 <label>I am the</label>
 <div class="seg" id="role"><button data-v="p" aria-pressed="true">Plaintiff</button><button data-v="d" aria-pressed="false">Defendant</button></div>
 <label for="offer">Settlement offer on the table ($)</label>
 <input id="offer" type="number" min="0" step="1000" value="150000">
+</section>
+<section class="card step-panel" data-screen="1" aria-labelledby="step-two-title" hidden>
+<div class="step-kicker">Round 2 · The stakes</div>
+<h2 id="step-two-title">What could the case cost or be worth?</h2>
 <label for="dmg">Damages if the plaintiff wins ($)</label>
 <input id="dmg" type="number" min="0" step="1000" value="400000">
 <label for="cost">Total legal cost to take it through trial ($)</label>
 <input id="cost" type="number" min="0" step="1000" value="80000">
+</section>
+<section class="card step-panel" data-screen="2" aria-labelledby="step-three-title" hidden>
+<div class="step-kicker">Round 3 · Your best estimate</div>
+<h2 id="step-three-title">How likely is a win at trial?</h2>
 <label for="p"><span class="row"><span id="plab">Chance the plaintiff wins</span><b id="pv"></b></span></label>
 <input id="p" type="range" min="0" max="100" value="50">
 <div id="colwrap"><label for="col"><span class="row"><span>Odds the defendant can actually pay</span><b id="cv"></b></span></label>
 <input id="col" type="range" min="0" max="100" value="90"></div>
-<label>Stomach for risk</label>
-<div class="seg" id="risk"><button data-v="-0.1" aria-pressed="false">Thrill seeker</button><button data-v="0" aria-pressed="false">Cool</button><button data-v="0.25" aria-pressed="true">Cautious</button><button data-v="0.5" aria-pressed="false">Nervous</button></div>
-<div class="tools"><button id="share">Copy share link 🔗</button><button id="print">Print summary 🖨️</button></div>
 </section>
-<section>
+<section class="card step-panel" data-screen="3" aria-labelledby="step-four-title" hidden>
+<div class="step-kicker">Final round · Trust your gut</div>
+<h2 id="step-four-title">Set your risk comfort and case stage</h2>
+<p class="choice-title">Choose your stomach for risk</p>
+<div class="seg" id="risk"><button data-v="-0.1" aria-pressed="false">Thrill seeker</button><button data-v="0" aria-pressed="false">Cool</button><button data-v="0.25" aria-pressed="true">Cautious</button><button data-v="0.5" aria-pressed="false">Nervous</button></div>
+<p class="choice-title">Where are you in the case?</p>
+<div class="seg" id="case-stage"><button data-i="0" aria-pressed="false">Before filing</button><button data-i="1" aria-pressed="true">After discovery</button><button data-i="2" aria-pressed="false">Eve of trial</button></div>
+</section>
+<section class="results" data-screen="4" aria-label="Your results" hidden>
 <div class="verdict" aria-live="polite"><div class="mascot" id="mascot">⚖️</div><div><h2 id="vh"></h2><p id="vp"></p></div></div>
 <div class="card"><h2>The decision tree</h2><svg id="tree" class="tree" viewBox="0 0 700 340" role="img" aria-label="Decision tree comparing settlement and trial"></svg></div>
 <div class="stages" id="stages"></div>
 <div class="card walk" id="walk"></div>
+<div class="tools"><button id="share">Copy share link 🔗</button><button id="print">Print summary 🖨️</button></div>
 </section>
+<nav class="step-controls" aria-label="Decision steps">
+<button id="back" type="button" disabled>← Back</button>
+<span id="step-hint" aria-live="polite">Your choices stay on this screen.</span>
+<button id="next" type="button">Next round →</button>
+</nav>
 </div>
 <small>This is a decision-support toy, not legal advice. It uses expected value, a 6% yearly discount for waiting, and a risk adjustment. Past legal fees are sunk, so only future costs count. Talk to a licensed attorney before you decide.</small>
 </main>

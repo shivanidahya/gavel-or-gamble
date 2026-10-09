@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const S={role:'p',risk:0.25,stage:1};
+const S={role:'p',risk:0.25,stage:1,revealed:false};
 const STAGES=[{n:'Before filing',e:'🌱',f:1,y:2.5},{n:'After discovery',e:'🔍',f:0.5,y:1},{n:'Eve of trial',e:'🔔',f:0.15,y:0.3}];
 const $$=(q)=>document.querySelectorAll(q);
 const m=n=>{const s=n<0?'-':'';return s+'$'+Math.round(Math.abs(n)).toLocaleString('en-US')};
@@ -65,6 +65,7 @@ var render=function(){
 };
 $$('#role button').forEach(b=>b.onclick=()=>{S.role=b.dataset.v;$$('#role button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
 $$('#risk button').forEach(b=>b.onclick=()=>{S.risk=parseFloat(b.dataset.v);$$('#risk button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+$$('#case-stage button').forEach(b=>b.onclick=()=>{S.stage=+b.dataset.i;$$('#case-stage button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
 ['offer','dmg','cost','p','col'].forEach(id=>$(id).addEventListener('input',()=>render()));
 
 // ---- URL state: every scenario is a shareable link ----
@@ -73,16 +74,19 @@ function save(){
   const q=new URLSearchParams();
   IDS.forEach(id=>q.set(id,$(id).value));
   q.set('role',S.role);q.set('risk',S.risk);q.set('stage',S.stage);
+  if(S.revealed)q.set('view','results');
   history.replaceState(null,'','#'+q.toString());
 }
 function load(){
   const q=new URLSearchParams(location.hash.slice(1));
+  S.revealed=q.get('view')==='results';
   IDS.forEach(id=>{if(q.has(id))$(id).value=q.get(id)});
   if(q.has('role'))S.role=q.get('role')==='d'?'d':'p';
   if(q.has('risk'))S.risk=parseFloat(q.get('risk'))||0;
   if(q.has('stage'))S.stage=Math.min(2,Math.max(0,+q.get('stage')||0));
   $$('#role button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===S.role));
   $$('#risk button').forEach(x=>x.setAttribute('aria-pressed',parseFloat(x.dataset.v)===S.risk));
+  $$('#case-stage button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.i===S.stage));
 }
 const _render=render;render=function(){_render();save()};
 $('share').onclick=async()=>{
@@ -92,5 +96,40 @@ $('share').onclick=async()=>{
   setTimeout(()=>$('share').textContent='Copy share link 🔗',2200);
 };
 $('print').onclick=()=>window.print();
-load();render();
+const hasSharedScenario=new URLSearchParams(location.hash.slice(1)).get('view')==='results';
+function showScreen(index){
+  const screen=Math.max(0,Math.min(4,index));
+  document.querySelectorAll('[data-screen]').forEach(panel=>{
+    panel.hidden=Number(panel.dataset.screen)!==screen;
+  });
+  document.querySelectorAll('[data-progress]').forEach(item=>{
+    const itemIndex=Number(item.dataset.progress);
+    item.classList.toggle('complete',itemIndex<screen||screen===4);
+    if(itemIndex===Math.min(screen,3))item.setAttribute('aria-current','step');
+    else item.removeAttribute('aria-current');
+  });
+  $('round-label').textContent=screen===4?'THE SHOWDOWN':`ROUND ${screen+1} OF 4`;
+  $('back').disabled=screen===0;
+  $('back').textContent=screen===4?'← Edit risk':'← Back';
+  $('next').textContent=screen===3?'Reveal my verdict →':screen===4?'Edit answers':'Next round →';
+  $('step-hint').textContent=screen===4?'Your numbers are a starting point for discussion, not legal advice.':'Your choices stay on this screen.';
+  const heading=screen===4?$('vh'):document.querySelector(`[data-screen="${screen}"] h2`);
+  heading.setAttribute('tabindex','-1');
+  heading.focus({preventScroll:true});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+$('back').onclick=()=>{
+  const current=Number(document.querySelector('[data-screen]:not([hidden])').dataset.screen);
+  if(current===4){S.revealed=false;save()}
+  showScreen(current-1);
+};
+$('next').onclick=()=>{
+  const current=Number(document.querySelector('[data-screen]:not([hidden])').dataset.screen);
+  if(current===4){S.revealed=false;save();showScreen(0)}
+  else{
+    if(current===3){S.revealed=true;render()}
+    showScreen(current+1);
+  }
+};
+load();render();showScreen(hasSharedScenario?4:0);
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
