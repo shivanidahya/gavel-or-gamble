@@ -33,15 +33,15 @@
 <label>I am the</label>
 <div class="seg" id="role"><button data-v="p" aria-pressed="true">Plaintiff</button><button data-v="d" aria-pressed="false">Defendant</button></div>
 <label for="offer">Settlement offer on the table ($)</label>
-<input id="offer" type="number" min="0" step="1000" value="150000">
+<input id="offer" type="number" min="0" step="1000" value="...">
 </section>
 <section class="card step-panel" data-screen="1" aria-labelledby="step-two-title" hidden>
 <div class="step-kicker">Round 2 · The stakes</div>
 <h2 id="step-two-title">What could the case cost or be worth?</h2>
 <label for="dmg">Damages if the plaintiff wins ($)</label>
-<input id="dmg" type="number" min="0" step="1000" value="400000">
+<input id="dmg" type="number" min="0" step="1000" value="...">
 <label for="cost">Total legal cost to take it through trial ($)</label>
-<input id="cost" type="number" min="0" step="1000" value="80000">
+<input id="cost" type="number" min="0" step="1000" value="...">
 </section>
 <section class="card step-panel" data-screen="2" aria-labelledby="step-three-title" hidden>
 <div class="step-kicker">Round 3 · Your best estimate</div>
@@ -61,7 +61,7 @@
 </section>
 <section class="results" data-screen="4" aria-label="Your results" hidden>
 <div class="verdict" aria-live="polite"><div class="mascot" id="mascot">⚖️</div><div><h2 id="vh"></h2><p id="vp"></p></div></div>
-<div class="card"><h2>The decision tree</h2><svg id="tree" class="tree" viewBox="0 0 700 340" role="img" aria-label="Decision tree comparing settlement and trial"></svg></div>
+<div class="card"><h2>The decision tree</h2><svg id="tree" class="tree" viewBox="0 0 700 340" role="img" aria-label="Decision tree comparing settlement and trial"></svg><p class="tree-hint" id="odds-hint">Click the dice to reveal the trial win and loss odds.</p></div>
 <div class="stages" id="stages"></div>
 <div class="card walk" id="walk"></div>
 <div class="tools"><button id="share">Copy share link 🔗</button><button id="print">Print summary 🖨️</button></div>

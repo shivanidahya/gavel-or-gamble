@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const S={role:'p',risk:0.25,stage:1,revealed:false};
+const S={role:'p',risk:0.25,stage:1,revealed:false,oddsRevealed:false};
 const STAGES=[{n:'Before filing',e:'🌱',f:1,y:2.5},{n:'After discovery',e:'🔍',f:0.5,y:1},{n:'Eve of trial',e:'🔔',f:0.15,y:0.3}];
 const $$=(q)=>document.querySelectorAll(q);
 const m=n=>{const s=n<0?'-':'';return s+'$'+Math.round(Math.abs(n)).toLocaleString('en-US')};
@@ -32,6 +32,7 @@ var render=function(){
   $('vh').textContent=H[0];$('vp').textContent=H[1];$('mascot').textContent=H[2];
   // tree
   const sBest=v==='s',tBest=v==='t',pct=Math.round(r.pg*100);
+  const odds=S.oddsRevealed;
   const gl=pl?'Win':'Plaintiff loses',bl=pl?'Lose':'Plaintiff wins';
   $('tree').innerHTML=`
   <path class="line ${sBest?'best':''}" d="M84 170 C170 170 190 70 300 70"/>
@@ -40,19 +41,35 @@ var render=function(){
   <path class="line" d="M284 262 C340 290 380 290 460 290"/>
   <rect class="node" x="40" y="160" width="46" height="46" rx="8"/>
   <text x="63" y="190" text-anchor="middle" font-size="22">?</text>
-  <circle class="node" cx="262" cy="250" r="24"/><text x="262" y="256" text-anchor="middle" font-size="18">🎲</text>
+  <g class="dice-control" role="button" tabindex="0" aria-label="${odds?'Hide':'Reveal'} trial win and loss odds" aria-pressed="${odds}">
+  <title>Click or press Enter to ${odds?'hide':'reveal'} trial odds</title>
+  <circle class="node" cx="262" cy="250" r="24"/><text x="262" y="256" text-anchor="middle" font-size="18">🎲</text></g>
   <text class="lbl" x="150" y="96" transform="rotate(-16 150 96)">settle</text>
   <text class="lbl" x="130" y="236" transform="rotate(12 130 236)">go to trial</text>
-  <text class="lbl" x="330" y="185" transform="rotate(-24 330 185)">${gl} ${pct}%</text>
-  <text class="lbl" x="330" y="296">${bl} ${100-pct}%</text>
+  <text class="lbl" x="330" y="185" transform="rotate(-24 330 185)">${odds?`${gl} ${pct}%`:gl}</text>
+  <text class="lbl" x="330" y="296">${odds?`${bl} ${100-pct}%`:bl}</text>
   <g class="${sBest?'boxbest':''}"><rect class="box ${sBest?'boxbest':''}" x="300" y="38" width="380" height="64" rx="16"/>
-  <text class="big" x="318" y="66">${sBest?'👑 ':''}Settle: ${m(r.settle)}</text><text class="lbl" x="318" y="88">${pl?'cash in hand, case over':'what you pay, case over'}</text></g>
+  <text class="big box-text" x="318" y="66">${sBest?'👑 ':''}Settle: ${m(r.settle)}</text><text class="lbl box-text" x="318" y="88">${pl?'cash in hand, case over':'what you pay, case over'}</text></g>
   <rect class="box" x="460" y="118" width="220" height="64" rx="16"/>
-  <text class="big" x="476" y="146">${m(r.good)}</text><text class="lbl" x="476" y="168">${pl?'win, net of future fees':'plaintiff loses, fees only'}</text>
+  <text class="big box-text" x="476" y="146">${m(r.good)}</text><text class="lbl box-text" x="476" y="168">${pl?'win, net of future fees':'plaintiff loses, fees only'}</text>
   <rect class="box" x="460" y="258" width="220" height="64" rx="16"/>
-  <text class="big" x="476" y="286">${m(r.bad)}</text><text class="lbl" x="476" y="308">${pl?'lose, fees only':'plaintiff wins, damages + fees'}</text>
+  <text class="big box-text" x="476" y="286">${m(r.bad)}</text><text class="lbl box-text" x="476" y="308">${pl?'lose, fees only':'plaintiff wins, damages + fees'}</text>
   <rect class="box ${tBest?'boxbest':''}" x="300" y="206" width="0" height="0"/>
   <text class="lbl" x="150" y="334" style="font-weight:700">${tBest?'👑 ':''}Trial, risk-adjusted: ${m(r.trial)}</text>`;
+  $('odds-hint').textContent=odds?'Trial odds shown from your current estimate. Click the dice to hide them.':'Click the dice to reveal the trial win and loss odds.';
+  const dice=$('tree').querySelector('.dice-control');
+  const toggleOdds=()=>{
+    S.oddsRevealed=!S.oddsRevealed;
+    render();
+    $('tree').querySelector('.dice-control').focus();
+  };
+  dice.addEventListener('click',toggleOdds);
+  dice.addEventListener('keydown',event=>{
+    if(event.key==='Enter'||event.key===' '){
+      event.preventDefault();
+      toggleOdds();
+    }
+  });
   // stages
   $('stages').innerHTML=STAGES.map((s,i)=>{const q=calc(i),w=call(q);
     return `<button class="stg" data-i="${i}" aria-pressed="${i===S.stage}"><div class="t">${s.e} ${s.n}</div><div class="v">Trial worth ${m(q.trial)}</div><span class="chip ${w==='t'?'t':w==='x'?'x':''}">${w==='s'?'Settle':w==='t'?'Try it':'Toss-up'}</span></button>`}).join('');
@@ -75,11 +92,13 @@ function save(){
   IDS.forEach(id=>q.set(id,$(id).value));
   q.set('role',S.role);q.set('risk',S.risk);q.set('stage',S.stage);
   if(S.revealed)q.set('view','results');
+  if(S.oddsRevealed)q.set('odds','1');
   history.replaceState(null,'','#'+q.toString());
 }
 function load(){
   const q=new URLSearchParams(location.hash.slice(1));
   S.revealed=q.get('view')==='results';
+  S.oddsRevealed=q.get('odds')==='1';
   IDS.forEach(id=>{if(q.has(id))$(id).value=q.get(id)});
   if(q.has('role'))S.role=q.get('role')==='d'?'d':'p';
   if(q.has('risk'))S.risk=parseFloat(q.get('risk'))||0;

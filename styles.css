@@ -72,9 +72,14 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--pink);outline-o
 .tree .box{fill:#f4f6ff;stroke:var(--border);stroke-width:3}
 .tree .boxbest{fill:var(--lime)}
 .tree .boxbest text,.tree .node text{fill:#1d1b4b}
+.tree .box-text{fill:#101a2f}
 .tree .node{fill:var(--sun);stroke:var(--border);stroke-width:3}
+.tree .dice-control{cursor:pointer}
+.tree .dice-control:focus-visible{outline:none}
+.tree .dice-control:focus-visible .node{stroke:var(--pink);stroke-width:5}
 .tree .lbl{font-size:13px;font-weight:700}
 .tree .big{font-size:20px;font-weight:900}
+.tree-hint{margin:4px 0 0;color:#c9d4e4;font-size:.82rem;text-align:center}
 .stages{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
 @media(max-width:560px){.stages{grid-template-columns:1fr}}
 .stg{background:linear-gradient(180deg,#12345c,#0f213e);border:2px solid var(--border);border-radius:14px;padding:10px 12px;font:inherit;color:var(--ink);text-align:left;cursor:pointer;box-shadow:3px 3px 0 rgba(0,0,0,.14)}
